@@ -4,20 +4,21 @@
 #include <time.h>
 
 #include "headerFiles/tarjan.h"
+#include "headerFiles/naive.h"
 
 
 
 int main() {
-    int V;
+    int V = 9;
     int E;
 
-    scanf("%d", &V); // Número de vértices
+    //scanf("%d", &V); // Número de vértices
    
-    scanf("%d", &E); // Número de arestas
+    //scanf("%d", &E); // Número de arestas
  
 
     // Grafo do enunciado
-    /*
+    
     Graph* graph = createGraph(V);
     addEdge(graph,0,1);
     addEdge(graph,0,4);
@@ -34,9 +35,9 @@ int main() {
     addEdge(graph,6,7);
     addEdge(graph,6,8);
     addEdge(graph,7,8);
-    */
     
-    Graph* graph = generateRandomGraph(V, E);
+    
+    //Graph* graph = generateRandomGraph(V, E);
 
     /*
     
@@ -55,7 +56,7 @@ int main() {
 
     // Medir tempo de execução
     clock_t start = clock();
-    findBridges(graph);
+    naiveFindBridges(graph);
     clock_t end = clock();
 
     printf("\nTotal de pontes encontradas: %d\n", bridgeCount);

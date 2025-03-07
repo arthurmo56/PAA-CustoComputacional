@@ -6,38 +6,29 @@
 #include <stdbool.h>
 #include <time.h>
 
-// Estrutura para armazenar lista de adjacência
-typedef struct Node {
-    int dest;
-    struct Node* next;
-} Node;
-
+// Estrutura do grafo com matriz de adjacência
 typedef struct Graph {
     int V;
-    Node** adj;
+    int** adj;
 } Graph;
 
 // Função para criar um grafo
 Graph* createGraph(int V) {
     Graph* graph = (Graph*)malloc(sizeof(Graph));
     graph->V = V;
-    graph->adj = (Node**)malloc(V * sizeof(Node*));
-    for (int i = 0; i < V; i++)
-        graph->adj[i] = NULL;
+    graph->adj = (int**)malloc(V * sizeof(int*));
+    
+    for (int i = 0; i < V; i++) {
+        graph->adj[i] = (int*)calloc(V, sizeof(int)); // Inicializa com 0
+    }
+    
     return graph;
 }
 
 // Adiciona uma aresta ao grafo (não direcionado)
 void addEdge(Graph* graph, int u, int v) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode->dest = v;
-    newNode->next = graph->adj[u];
-    graph->adj[u] = newNode;
-
-    newNode = (Node*)malloc(sizeof(Node));
-    newNode->dest = u;
-    newNode->next = graph->adj[v];
-    graph->adj[v] = newNode;
+    graph->adj[u][v] = 1;
+    graph->adj[v][u] = 1;
 }
 
 // Função para gerar um grafo aleatório conexo
@@ -48,11 +39,6 @@ Graph* generateRandomGraph(int V, int E) {
     }
 
     Graph* graph = createGraph(V);
-    bool** matrix = (bool**)malloc(V * sizeof(bool*));
-    for (int i = 0; i < V; i++) {
-        matrix[i] = (bool*)calloc(V, sizeof(bool));
-    }
-
     srand(time(NULL));
 
     // Garantindo que o grafo seja conexo (criando uma árvore mínima)
@@ -60,15 +46,13 @@ Graph* generateRandomGraph(int V, int E) {
     visited[0] = 1; // Começa pelo primeiro vértice
 
     for (int i = 1; i < V; i++) {
-        int u, v;
+        int u;
         do {
             u = rand() % i; // Garante que u é um vértice já visitado
-            v = i;         // O próximo vértice a ser conectado
-        } while (matrix[u][v]);
+        } while (graph->adj[u][i]);
 
-        matrix[u][v] = matrix[v][u] = true;
-        addEdge(graph, u, v);
-        visited[v] = 1;
+        addEdge(graph, u, i);
+        visited[i] = 1;
     }
 
     // Adicionando arestas extras para alcançar o número desejado de arestas
@@ -76,18 +60,13 @@ Graph* generateRandomGraph(int V, int E) {
     while (remainingEdges > 0) {
         int u = rand() % V;
         int v = rand() % V;
-        if (u != v && !matrix[u][v]) {
-            matrix[u][v] = matrix[v][u] = true;
+        if (u != v && graph->adj[u][v] == 0) {
             addEdge(graph, u, v);
             remainingEdges--;
         }
     }
 
-    for (int i = 0; i < V; i++)
-        free(matrix[i]);
-    free(matrix);
     free(visited);
-
     return graph;
 }
 

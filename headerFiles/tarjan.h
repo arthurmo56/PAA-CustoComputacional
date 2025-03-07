@@ -16,28 +16,25 @@ void dfsBridge(Graph* graph, int u, int parent, int* disc, int* low, bool* visit
     visited[u] = true;
     disc[u] = low[u] = ++(*time);
 
-    Node* temp = graph->adj[u];
-    while (temp != NULL) {
-        int v = temp->dest;
+    for (int v = 0; v < graph->V; v++) {
+        if (graph->adj[u][v] == 1) {
+            if (!visited[v]) {
+                dfsBridge(graph, v, u, disc, low, visited, time);
+                low[u] = (low[u] < low[v]) ? low[u] : low[v];
 
-        if (!visited[v]) {
-            dfsBridge(graph, v, u, disc, low, visited, time);
-            low[u] = (low[u] < low[v]) ? low[u] : low[v];
-
-            if (low[v] > disc[u]) {
-                printf("Ponte encontrada: %d - %d\n", u, v);
-                bridgeCount++;  // Incrementa a contagem de pontes
+                if (low[v] > disc[u]) {
+                    printf("Ponte encontrada: %d - %d\n", u, v);
+                    bridgeCount++;  // Incrementa a contagem de pontes
+                }
+            } else if (v != parent) {
+                low[u] = (low[u] < disc[v]) ? low[u] : disc[v];
             }
-        } else if (v != parent) {
-            low[u] = (low[u] < disc[v]) ? low[u] : disc[v];
         }
-
-        temp = temp->next;
     }
 }
 
 // Função para encontrar pontes em um grafo usando Tarjan
-void findBridges(Graph* graph) {
+void tarjanFindBridges(Graph* graph) {
     int* disc = (int*)malloc(graph->V * sizeof(int));
     int* low = (int*)malloc(graph->V * sizeof(int));
     bool* visited = (bool*)malloc(graph->V * sizeof(bool));
